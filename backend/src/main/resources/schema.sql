@@ -310,3 +310,37 @@ CREATE TABLE IF NOT EXISTS feedback (
     INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 打卡集章记录（同一用户同一景点仅一枚章，到访时间保留首次记录）
+CREATE TABLE IF NOT EXISTS spot_stamp (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    spot_id BIGINT NOT NULL,
+    spot_name VARCHAR(100) NOT NULL COMMENT '盖章时景点名称快照',
+    theme VARCHAR(50) COMMENT '盖章时主题快照',
+    visit_time DATETIME NOT NULL COMMENT '到访时间（首次到访，重复到访不覆盖）',
+    source VARCHAR(20) DEFAULT 'CHECKIN' COMMENT 'CHECKIN=手动打卡 ORDER=订单支付自动盖章',
+    biz_order_id BIGINT COMMENT '来源订单ID',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_user_spot (user_id, spot_id),
+    INDEX idx_user (user_id),
+    INDEX idx_theme_user (theme, user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 纪念册导出记录（每用户每主题仅一条，重复导出覆盖）
+CREATE TABLE IF NOT EXISTS stamp_album (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    theme VARCHAR(50) NOT NULL,
+    theme_name VARCHAR(100) NOT NULL,
+    total_count INT NOT NULL DEFAULT 0 COMMENT '主题景点总数',
+    stamped_count INT NOT NULL DEFAULT 0 COMMENT '已盖章数',
+    image_url VARCHAR(255) COMMENT '纪念册图片地址(SVG)',
+    zip_url VARCHAR(255) COMMENT '打包下载地址(ZIP)',
+    status INT DEFAULT 0 COMMENT '0=未完成 1=已完成（集满且已导出）',
+    export_time DATETIME COMMENT '最近一次成功导出时间',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_user_theme (user_id, theme),
+    INDEX idx_user (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
