@@ -66,6 +66,14 @@ INSERT INTO route_spot (route_id, spot_id, day_number, sort_order, description) 
 (4, 2, 1, 1, '上午：息烽集中营'),
 (5, 5, 1, 1, '第一天：黎平会议会址');
 
+-- 打卡集章示例数据（zhangsan 已集满「革命遗址」主题，可演示纪念册导出；「纪念馆」主题演示"还差1个"）
+INSERT INTO spot_stamp (user_id, spot_id, theme, visit_time) VALUES
+(2, 1, '革命遗址', '2026-09-10 09:30:00'),
+(2, 5, '革命遗址', '2026-09-11 14:00:00'),
+(2, 6, '革命遗址', '2026-09-12 10:15:00'),
+(2, 2, '纪念馆', '2026-09-13 15:40:00'),
+(3, 1, '革命遗址', '2026-09-15 11:20:00');
+
 -- 红色文化分类
 INSERT INTO culture_category (name, parent_id, sort_order) VALUES
 ('红色故事', 0, 1),

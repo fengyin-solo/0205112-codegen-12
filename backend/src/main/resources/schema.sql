@@ -310,3 +310,14 @@ CREATE TABLE IF NOT EXISTS feedback (
     INDEX idx_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- 打卡集章记录（同一用户同一景点仅一枚章，visit_time 保留首次到访时间）
+CREATE TABLE IF NOT EXISTS spot_stamp (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NOT NULL,
+    spot_id BIGINT NOT NULL,
+    theme VARCHAR(50) COMMENT '盖章时景点所属主题（冗余快照）',
+    visit_time DATETIME NOT NULL COMMENT '首次到访时间（原始到访时间，重复打卡不更新）',
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY uk_user_spot (user_id, spot_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+

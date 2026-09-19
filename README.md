@@ -35,13 +35,14 @@ docker compose up --build -d
 
 ## 3. 功能模块
 
-### 游客端（http://localhost:8083）— 21 个页面
+### 游客端（http://localhost:8083）— 22 个页面
 
 | 页面 | 核心功能 |
 |------|---------|
 | 首页 `index.html` | 景点轮播图、热门景点卡片、推荐线路、红色文化快速入口 |
 | 景点列表 `spots.html` | 分页展示、地区/主题/状态多条件筛选、关键词搜索、距离/人气/好评排序 |
-| 景点详情 `spot-detail.html` | 图片轮播、基础信息、红色文化解读（历史背景/革命事件/人物故事）、Leaflet 嵌入式地图、相关景点推荐、用户评论、预订门票、问题反馈跳转、**信息更正提交** |
+| 景点详情 `spot-detail.html` | 图片轮播、基础信息、红色文化解读（历史背景/革命事件/人物故事）、Leaflet 嵌入式地图、相关景点推荐、用户评论、预订门票、问题反馈跳转、**信息更正提交**、**打卡盖章** |
+| **我的集章** `stamps.html` | 主题集章进度（已集/总数、还差几个）、盖章记录、集满主题生成纪念册（导出图片/打包下载） |
 | 线路列表 `routes.html` | 天数（1-7天）/主题分类筛选、收藏 |
 | 线路详情 `route-detail.html` | 行程安排、景点地图标注（OpenStreetMap）、交通住宿预算建议、预订、**导出/打印** |
 | 红色文化列表 `culture.html` | 分类浏览、关键词搜索、点赞、收藏 |
@@ -63,7 +64,7 @@ docker compose up --build -d
 | 页面 | 核心功能 |
 |------|---------|
 | 仪表盘 `index.html` | 用户数/景点数/订单数/收入总览，快捷入口卡片 |
-| 用户管理 `users.html` | 列表（角色/状态/关键词筛选）、新增/编辑、禁用/启用、重置密码、删除、**CSV 导出** |
+| 用户管理 `users.html` | 列表（角色/状态/关键词筛选）、新增/编辑、禁用/启用、重置密码、删除、**CSV 导出**、**盖章数统计与集章详情查看** |
 | 景点管理 `spots.html` | 景点 CRUD、图片上传管理、开放状态切换、访问量/收藏量/评分统计 |
 | 线路管理 `routes.html` | 推荐线路 CRUD、行程景点关联与排序、封面图上传 |
 | 文化管理 `culture.html` | 文化内容 CRUD、分类管理、**Quill 富文本编辑器**（支持图片/视频/表格插入） |
@@ -138,6 +139,17 @@ docker compose up --build -d
 | `GET /api/message/list?page=&size=` | 消息通知列表 |
 | `GET /api/message/unreadCount` | 未读消息数 |
 
+### 打卡集章
+| 端点 | 说明 |
+|------|------|
+| `GET /api/stamp/checkin?spotId=` | 打卡盖章（需登录；重复到访只保留一枚章与首次到访时间） |
+| `GET /api/stamp/check?spotId=` | 查询当前景点是否已盖章 |
+| `GET /api/stamp/my` | 我的盖章记录列表 |
+| `GET /api/stamp/count` | 我的盖章总数（与后台用户列表盖章数同一口径） |
+| `GET /api/stamp/progress` | 按主题的集章进度（含 remaining=还差几个） |
+| `GET /api/stamp/album/export?theme=&format=` | 导出主题纪念册（format: image/zip；需已集满该主题；原子写入，重新导出覆盖上一次结果） |
+| `GET /api/stamp/album/list` | 我的纪念册列表（已集满主题及已生成文件） |
+
 ### 自定义线路
 | 端点 | 说明 |
 |------|------|
@@ -171,6 +183,7 @@ docker compose up --build -d
 | `GET /api/admin/user/resetPassword?id=&newPassword=` | 重置密码 |
 | `GET /api/admin/user/delete?id=` | 删除用户 |
 | `GET /api/admin/user/export` | 导出全部用户 CSV |
+| `GET /api/admin/user/stamps?userId=` | 查看指定用户的盖章记录（总数与列表盖章数同口径） |
 | `GET /api/admin/spot/list?page=&size=` | 景点列表（STAFF 仅返回本人所属景点） |
 | `GET /api/admin/spot/save?...` | 景点新增/编辑（STAFF 新增自动绑定 `staff_id`） |
 | `GET /api/admin/spot/delete?id=` | 删除景点（STAFF 仅可删本人景点） |
@@ -248,18 +261,18 @@ label-02051/
 │   ├── src/main/java/com/redtourism/
 │   │   ├── config/                   # Security / CORS / MybatisPlus / WebMvc 配置
 │   │   ├── common/                   # Result 统一响应、全局异常处理、常量
-│   │   ├── entity/                   # 22 个实体类
-│   │   ├── mapper/                   # 22 个 MyBatis-Plus Mapper
+│   │   ├── entity/                   # 23 个实体类
+│   │   ├── mapper/                   # 23 个 MyBatis-Plus Mapper
 │   │   ├── service/                  # 11 个业务接口 + 实现
 │   │   └── controller/               # 20 个 REST Controller（~1900 行）
 │   ├── src/main/resources/
-│   │   ├── schema.sql                # 建表脚本（22 张表）
+│   │   ├── schema.sql                # 建表脚本（23 张表）
 │   │   ├── data.sql                  # 初始化数据（景点/线路/文化/酒店/美食/FAQ等）
 │   │   └── application.yml           # 应用配置（session 30min、文件上传 10MB）
 │   ├── uploads/                      # 图片资源（49 张，含景点/线路/酒店/美食封面）
 │   ├── Dockerfile                    # 标准构建（含 mvn package）
 │   └── Dockerfile.fast               # 快速构建（直接拷贝预编译 JAR）
-├── frontend-user/                    # 游客端前端（21 个页面）
+├── frontend-user/                    # 游客端前端（22 个页面）
 │   ├── css/style.css                 # 全局样式（CSS 变量 + 响应式）
 │   ├── js/common.js                  # 公共函数（api/getUser/i18n/分页/Toast等）
 │   └── *.html                        # 业务页面
@@ -278,7 +291,7 @@ label-02051/
     └── SelfTestReport.md
 ```
 
-### 数据库表清单（22 张）
+### 数据库表清单（23 张）
 
 | 表名 | 说明 | 初始数据 |
 |------|------|---------|
@@ -304,6 +317,7 @@ label-02051/
 | `user_custom_route` | 用户自定义线路 | 3 条 |
 | `spot_suggestion` | 景点信息更正建议 | — |
 | `service_chat` | 人工客服对话记录 | — |
+| `spot_stamp` | 打卡集章记录（user_id+spot_id 唯一，保留首次到访时间） | 5 条 |
 
 ---
 
@@ -331,8 +345,9 @@ label-02051/
 ## 9. 注意事项
 
 1. **Docker 构建**：使用多阶段 `Dockerfile`，容器内自动执行 Maven 构建，无需本地预装 Java/Maven 环境，真正一键启动。首次构建因需下载 Maven 依赖耗时约 3-5 分钟，后续有层缓存构建会快很多。
-2. **数据持久化**：MySQL 数据通过 Docker named volume `mysql-data` 持久化，`docker compose down` 不会丢失数据；`docker compose down -v` 会清除数据并在下次启动时重新初始化。
+2. **数据持久化**：MySQL 数据通过 Docker named volume `mysql-data` 持久化，`docker compose down` 不会丢失数据；`docker compose down -v` 会清除数据并在下次启动时重新初始化。已有数据卷升级时，`docker-entrypoint-initdb.d` 脚本不会重复执行，需手动执行 `schema.sql` 中新增的 `spot_stamp` 建表语句（或 `down -v` 重建）。
 3. **图片上传**：支持 10MB 以内图片上传，存储于 `backend/uploads/` 目录，通过 Nginx 静态服务以 `/uploads/` 路径访问。
-4. **智能客服**：基于 FAQ 表关键词相似度匹配实现自动回复，非 AI 大模型；人工客服采用前端轮询（5 秒间隔）模拟实时效果。
-5. **多语言**：英文（en）和日文（ja）内容需在管理端景点/线路/文化编辑页面手动填写对应语言字段（`name_en`/`name_ja`/`description_en`/`description_ja` 等），初始化数据中已为部分景点提供英/日文示例。
-6. **Session 超时**：默认 30 分钟，配置于 `application.yml`；前端每 5 分钟检测一次 session 状态，超时自动弹窗提示并跳转登录页。
+4. **打卡集章与纪念册**：景点详情页打卡即盖章（同一景点仅一枚，保留首次到访时间）；集满主题可在「我的集章」导出纪念册（PNG 图片或 ZIP 打包，含主题名称、景点列表、到访日期）。纪念册生成采用"临时文件 + 原子替换"：导出中断不会留下损坏文件，重新导出覆盖上一次结果；文件保存在 `backend/uploads/albums/`。后端镜像已内置 Noto CJK 中文字体，保证纪念册中文渲染正常。
+5. **智能客服**：基于 FAQ 表关键词相似度匹配实现自动回复，非 AI 大模型；人工客服采用前端轮询（5 秒间隔）模拟实时效果。
+6. **多语言**：英文（en）和日文（ja）内容需在管理端景点/线路/文化编辑页面手动填写对应语言字段（`name_en`/`name_ja`/`description_en`/`description_ja` 等），初始化数据中已为部分景点提供英/日文示例。
+7. **Session 超时**：默认 30 分钟，配置于 `application.yml`；前端每 5 分钟检测一次 session 状态，超时自动弹窗提示并跳转登录页。

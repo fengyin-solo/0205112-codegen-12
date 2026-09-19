@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的集章 - 贵州红色旅游</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .stamp-summary{display:flex;gap:16px;margin-bottom:24px}
+        .stamp-summary-card{flex:1;background:var(--card);border-radius:var(--r);padding:20px 24px;box-shadow:var(--shadow);display:flex;align-items:center;gap:16px}
+        .stamp-summary-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:22px;flex-shrink:0}
+        .stamp-summary-num{font-size:26px;font-weight:700;color:var(--text);line-height:1.2}
+        .stamp-summary-label{font-size:13px;color:var(--text2);margin-top:2px}
+        .theme-card{background:var(--card);border-radius:var(--r);padding:24px;box-shadow:var(--shadow);margin-bottom:20px}
+        .theme-card-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:14px}
+        .theme-card-title{font-size:17px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:10px}
+        .theme-progress-wrap{flex:1;min-width:200px;max-width:420px;display:flex;align-items:center;gap:12px}
+        .theme-progress-bar{flex:1;height:8px;background:#f0e6e6;border-radius:4px;overflow:hidden}
+        .theme-progress-fill{height:100%;background:linear-gradient(90deg,var(--red),#e05555);border-radius:4px;transition:width .4s}
+        .theme-progress-text{font-size:13px;color:var(--text2);white-space:nowrap}
+        .theme-remaining{font-size:13px;color:#b26a00;background:#fff7e8;border:1px solid #ffe1b3;border-radius:20px;padding:4px 12px;white-space:nowrap}
+        .theme-complete{font-size:13px;color:#1a7f37;background:#e9f8ee;border:1px solid #b7e6c5;border-radius:20px;padding:4px 12px;white-space:nowrap}
+        .stamp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-top:6px}
+        .stamp-cell{border:1px solid var(--border);border-radius:var(--r);padding:14px 10px;text-align:center;background:#fff}
+        .stamp-cell .stamp-circle{width:58px;height:58px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:22px}
+        .stamp-cell.stamped .stamp-circle{border:3px solid var(--red);color:var(--red);background:#fff5f5}
+        .stamp-cell.unstamped .stamp-circle{border:2px dashed #d8c9c9;color:#cbbdbd;background:#faf7f7}
+        .stamp-cell .stamp-spot-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .stamp-cell .stamp-visit{font-size:12px;color:var(--text3);margin-top:4px}
+        .stamp-cell.unstamped .stamp-spot-name{color:var(--text3)}
+        .album-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px dashed #f0e0e0}
+        .album-existing{font-size:12px;color:var(--text3);width:100%}
+        .album-existing a{color:var(--red);margin-right:14px}
+        .stamp-record-table{width:100%;border-collapse:collapse}
+        .stamp-record-table th,.stamp-record-table td{padding:12px 14px;text-align:left;font-size:14px;border-bottom:1px solid #f5f0f0}
+        .stamp-record-table th{color:var(--text2);font-weight:600;background:#faf7f7}
+        @media (max-width:768px){.stamp-summary{flex-direction:column}}
+    </style>
+</head>
+<body>
+<header class="header">
+    <div class="container header-inner">
+        <a href="index.html" class="logo"><i class="fas fa-flag"></i> <span>贵州红色旅游</span></a>
+        <nav class="nav">
+            <a href="index.html" data-i18n="home">首页</a>
+            <a href="spots.html" data-i18n="spots">景点</a>
+            <a href="routes.html" data-i18n="routes">线路</a>
+            <a href="culture.html" data-i18n="culture">红色文化</a>
+            <a href="hotels.html" data-i18n="hotels">酒店</a>
+            <a href="foods.html" data-i18n="foods">美食</a>
+            <a href="faq.html" data-i18n="faq">客服</a>
+        </nav>
+        <div class="header-right">
+            <div class="lang-switcher"><select id="langSelect" onchange="switchLang(this.value)"><option value="zh">中文</option><option value="en">English</option><option value="ja">日本語</option></select></div>
+            <div id="userMenu"></div>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <div class="profile-layout">
+        <div class="profile-sidebar">
+            <div class="profile-sidebar-header">
+                <div class="profile-avatar" id="sidebarAvatar"></div>
+                <h3 id="sidebarName"></h3>
+                <p id="sidebarPhone"></p>
+            </div>
+            <div class="profile-menu">
+                <a href="profile.html"><i class="fas fa-user"></i><span>个人中心</span></a>
+                <a href="stamps.html" class="active"><i class="fas fa-stamp"></i><span>我的集章</span></a>
+                <a href="favorites.html"><i class="fas fa-heart"></i><span>我的收藏</span></a>
+                <a href="orders.html"><i class="fas fa-shopping-bag"></i><span>我的订单</span></a>
+                <a href="messages.html"><i class="fas fa-bell"></i><span>消息通知</span></a>
+                <a href="my-routes.html"><i class="fas fa-route"></i><span>我的线路</span></a>
+                <a href="feedback.html"><i class="fas fa-bullhorn"></i><span>问题反馈</span></a>
+            </div>
+        </div>
+        <div class="profile-content">
+            <div class="profile-section-header">
+                <span class="profile-section-header-title"><i class="fas fa-stamp"></i>我的集章</span>
+            </div>
+
+            <div class="stamp-summary">
+                <div class="stamp-summary-card">
+                    <div class="stamp-summary-icon" style="background:linear-gradient(135deg,#C41A1A,#8B1A1A)"><i class="fas fa-stamp"></i></div>
+                    <div>
+                        <div class="stamp-summary-num" id="totalStamps">0</div>
+                        <div class="stamp-summary-label">已集章（枚）</div>
+                    </div>
+                </div>
+                <div class="stamp-summary-card">
+                    <div class="stamp-summary-icon" style="background:linear-gradient(135deg,#4ECDC4,#3DB9B0)"><i class="fas fa-award"></i></div>
+                    <div>
+                        <div class="stamp-summary-num" id="completeThemes">0</div>
+                        <div class="stamp-summary-label">已集满主题（个）</div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="themeList"><div class="loading"><div class="spinner"></div></div></div>
+
+            <div style="background:var(--card);border-radius:var(--r);padding:24px;box-shadow:var(--shadow);margin-top:8px">
+                <h3 style="margin-bottom:16px;font-size:16px"><i class="fas fa-history" style="color:var(--red);margin-right:8px"></i>盖章记录</h3>
+                <div id="stampRecords"><div class="loading"><div class="spinner"></div></div></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer class="footer"><div class="container"><p>© 2026 贵州红色文化旅游景点信息管理系统</p></div></footer>
+
+<script src="js/common.js"></script>
+<script>
+if (!requireLogin()) throw new Error('need login');
+
+let albumMap = {};
+let themeData = [];
+
+function renderSidebar() {
+    const u = getUser();
+    const initial = (u.nickname || u.username || '?').charAt(0).toUpperCase();
+    document.getElementById('sidebarAvatar').textContent = initial;
+    if (u.avatar) {
+        document.getElementById('sidebarAvatar').innerHTML = '<img src="' + API + u.avatar + '" style="width:100%;height:100%;border-radius:50%;object-fit:cover" onerror="this.parentElement.textContent=\'' + initial + '\'">';
+    }
+    document.getElementById('sidebarName').textContent = u.nickname || u.username || '';
+    document.getElementById('sidebarPhone').textContent = u.phone || '';
+}
+
+function esc(s) {
+    return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function dayOf(d) { return d ? String(d).substring(0, 10) : '--'; }
+
+async function loadSummary() {
+    const count = await api('/api/stamp/count');
+    if (count !== null && count !== true) document.getElementById('totalStamps').textContent = count;
+}
+
+async function loadAlbums() {
+    const albums = await api('/api/stamp/album/list');
+    albumMap = {};
+    if (Array.isArray(albums)) albums.forEach(a => { albumMap[a.theme] = a; });
+}
+
+async function loadProgress() {
+    const list = await api('/api/stamp/progress');
+    const box = document.getElementById('themeList');
+    if (!list || list === true) { box.innerHTML = '<div class="empty"><p>加载失败</p></div>'; return; }
+    if (!list.length) { box.innerHTML = '<div class="empty"><i class="fas fa-stamp"></i><p>暂无集章主题</p></div>'; return; }
+
+    themeData = list.map(t => t.theme);
+    document.getElementById('completeThemes').textContent = list.filter(t => t.complete).length;
+
+    box.innerHTML = list.map((t, tIdx) => {
+        const pct = t.total > 0 ? Math.round(t.stamped * 100 / t.total) : 0;
+        const status = t.complete
+            ? '<span class="theme-complete"><i class="fas fa-check-circle"></i> 已集满，可生成纪念册</span>'
+            : '<span class="theme-remaining"><i class="fas fa-hourglass-half"></i> 还差 ' + t.remaining + ' 个</span>';
+        const cells = (t.spots || []).map(s => {
+            if (s.stamped) {
+                return '<div class="stamp-cell stamped">' +
+                    '<div class="stamp-circle"><i class="fas fa-stamp"></i></div>' +
+                    '<div class="stamp-spot-name" title="' + esc(s.name) + '">' + esc(s.name) + '</div>' +
+                    '<div class="stamp-visit">' + dayOf(s.visitTime) + '</div>' +
+                    '</div>';
+            }
+            return '<div class="stamp-cell unstamped">' +
+                '<div class="stamp-circle"><i class="fas fa-plus"></i></div>' +
+                '<div class="stamp-spot-name" title="' + esc(s.name) + '">' + esc(s.name) + '</div>' +
+                '<div class="stamp-visit">未打卡</div>' +
+                '</div>';
+        }).join('');
+
+        let albumHtml = '';
+        if (t.complete) {
+            const a = albumMap[t.theme] || {};
+            let existing = '';
+            if (a.imageUrl || a.zipUrl) {
+                existing = '<div class="album-existing">已生成：' +
+                    (a.imageUrl ? '<a href="' + API + a.imageUrl + '?t=' + (a.imageTime || 0) + '" target="_blank"><i class="fas fa-image"></i> 图片</a>' : '') +
+                    (a.zipUrl ? '<a href="' + API + a.zipUrl + '?t=' + (a.zipTime || 0) + '" target="_blank"><i class="fas fa-file-archive"></i> 打包</a>' : '') +
+                    '（重新导出将覆盖上一次结果）</div>';
+            }
+            albumHtml = '<div class="album-actions">' +
+                '<button class="btn btn-primary btn-sm" onclick="exportAlbum(' + tIdx + ',\'image\',this)"><i class="fas fa-image"></i> 导出图片</button>' +
+                '<button class="btn btn-outline btn-sm" onclick="exportAlbum(' + tIdx + ',\'zip\',this)"><i class="fas fa-file-archive"></i> 打包下载</button>' +
+                existing +
+                '</div>';
+        }
+
+        return '<div class="theme-card">' +
+            '<div class="theme-card-head">' +
+                '<div class="theme-card-title"><i class="fas fa-bookmark" style="color:var(--red)"></i>' + esc(t.theme) + '</div>' +
+                '<div class="theme-progress-wrap">' +
+                    '<div class="theme-progress-bar"><div class="theme-progress-fill" style="width:' + pct + '%"></div></div>' +
+                    '<span class="theme-progress-text">' + t.stamped + ' / ' + t.total + '</span>' +
+                '</div>' +
+                status +
+            '</div>' +
+            '<div class="stamp-grid">' + cells + '</div>' +
+            albumHtml +
+        '</div>';
+    }).join('');
+}
+
+async function exportAlbum(themeIdx, format, btn) {
+    const theme = themeData[themeIdx];
+    if (!theme) return;
+    const oldHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 生成中...';
+    try {
+        const res = await api('/api/stamp/album/export?theme=' + encodeURIComponent(theme) + '&format=' + format);
+        if (res && res.url) {
+            showToast(format === 'zip' ? '纪念册打包完成，开始下载' : '纪念册图片已生成');
+            const link = document.createElement('a');
+            // 附加时间戳参数，避免浏览器命中 /uploads/ 的长缓存而拿到上一次的结果
+            link.href = API + res.url + '?t=' + Date.now();
+            link.download = '';
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+            await loadAlbums();
+            await loadProgress();
+        }
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = oldHtml;
+    }
+}
+
+async function loadRecords() {
+    const list = await api('/api/stamp/my');
+    const box = document.getElementById('stampRecords');
+    if (!list || list === true || !list.length) {
+        box.innerHTML = '<div class="empty"><i class="fas fa-stamp"></i><p>还没有盖章记录，去景点详情页打卡吧</p></div>';
+        return;
+    }
+    box.innerHTML = '<table class="stamp-record-table"><thead><tr><th>景点</th><th>主题</th><th>地区</th><th>首次到访时间</th></tr></thead><tbody>' +
+        list.map(s => '<tr>' +
+            '<td><a href="spot-detail.html?id=' + s.spotId + '" style="color:var(--text);font-weight:600">' + esc(s.spotName || ('#' + s.spotId)) + '</a></td>' +
+            '<td>' + esc(s.theme || '-') + '</td>' +
+            '<td>' + esc(s.region || '-') + '</td>' +
+            '<td>' + formatDate(s.visitTime) + '</td>' +
+        '</tr>').join('') +
+        '</tbody></table>';
+}
+
+async function init() {
+    renderSidebar();
+    await loadAlbums();
+    loadSummary();
+    loadProgress();
+    loadRecords();
+}
+init();
+</script>
+</body>
+</html>

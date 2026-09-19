@@ -56,6 +56,8 @@ public class AdminController {
     private com.redtourism.mapper.SpotSuggestionMapper spotSuggestionMapper;
     @Autowired
     private com.redtourism.mapper.ServiceChatMapper chatMapper;
+    @Autowired
+    private StampService stampService;
 
     // ==================== 用户管理 ====================
 
@@ -65,7 +67,19 @@ public class AdminController {
                                          @RequestParam(required = false) String role,
                                          @RequestParam(required = false) Integer status,
                                          @RequestParam(required = false) String keyword) {
-        return Result.success(userService.listUsers(page, size, role, status, keyword));
+        IPage<User> result = userService.listUsers(page, size, role, status, keyword);
+        // 盖章数与游客端个人中心共用同一统计口径（spot_stamp 表实时 COUNT）
+        Map<Long, Long> stampCounts = stampService.countStampsGroupByUser();
+        result.getRecords().forEach(u -> u.setStampCount(stampCounts.getOrDefault(u.getId(), 0L)));
+        return Result.success(result);
+    }
+
+    @GetMapping("/user/stamps")
+    public Result<Map<String, Object>> userStamps(@RequestParam Long userId) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("total", stampService.countUserStamps(userId));
+        data.put("list", stampService.listUserStamps(userId));
+        return Result.success(data);
     }
 
     @GetMapping("/user/toggleStatus")

@@ -1,6 +1,10 @@
 FROM eclipse-temurin:8-jre
+# 安装中文字体（集章纪念册图片需渲染中文），fontconfig 供 AWT 字体发现
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends fonts-noto-cjk fontconfig \
+    && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
 COPY target/red-tourism-backend-1.0.0.jar app.jar
 RUN mkdir -p /app/uploads
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-Djava.awt.headless=true", "-jar", "app.jar"]

@@ -56,8 +56,8 @@
                 </div>
                 <div class="table-wrapper">
                     <table>
-                        <thead><tr><th>ID</th><th>用户名</th><th>昵称</th><th>手机</th><th>角色</th><th>状态</th><th>操作</th></tr></thead>
-                        <tbody id="tableBody"><tr><td colspan="7" class="loading"><i class="fas fa-spinner fa-spin"></i> 加载中...</td></tr></tbody>
+                        <thead><tr><th>ID</th><th>用户名</th><th>昵称</th><th>手机</th><th>角色</th><th>盖章数</th><th>状态</th><th>操作</th></tr></thead>
+                        <tbody id="tableBody"><tr><td colspan="8" class="loading"><i class="fas fa-spinner fa-spin"></i> 加载中...</td></tr></tbody>
                     </table>
                 </div>
                 <div class="pagination" id="pagination"></div>
@@ -103,12 +103,31 @@
     </div>
 </div>
 
+<div class="modal-overlay" id="stampModal">
+    <div class="modal" style="max-width:640px">
+        <div class="modal-header"><h3 id="stampModalTitle">集章详情</h3><button class="modal-close" onclick="closeStampModal()">&times;</button></div>
+        <div class="modal-body">
+            <div id="stampSummary" style="margin-bottom:12px;font-size:14px"></div>
+            <div class="table-wrapper" style="max-height:400px;overflow:auto">
+                <table>
+                    <thead><tr><th>景点</th><th>主题</th><th>地区</th><th>首次到访时间</th></tr></thead>
+                    <tbody id="stampTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-default" onclick="closeStampModal()">关闭</button>
+        </div>
+    </div>
+</div>
+
 <script src="js/admin-common.js"></script>
 <script>
 if (!requireAdmin()) throw '';
 renderSidebar();
 
 let currentPage = 1;
+let userMap = {};
 
 async function loadData(page) {
     currentPage = page;
@@ -120,16 +139,18 @@ async function loadData(page) {
     if (status) url += `&status=${status}`;
     if (keyword) url += `&keyword=${encodeURIComponent(keyword)}`;
 
-    document.getElementById('tableBody').innerHTML = '<tr><td colspan="7" class="loading"><i class="fas fa-spinner fa-spin"></i> 加载中...</td></tr>';
+    document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" class="loading"><i class="fas fa-spinner fa-spin"></i> 加载中...</td></tr>';
     const data = await api(url);
-    if (!data) { document.getElementById('tableBody').innerHTML = '<tr><td colspan="7" class="empty-state">加载失败</td></tr>'; return; }
+    if (!data) { document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" class="empty-state">加载失败</td></tr>'; return; }
 
     const list = data.records || data.list || data || [];
     const total = data.pages || data.totalPages || Math.ceil((data.total || list.length) / 10);
-    if (!list.length) { document.getElementById('tableBody').innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-inbox"></i> 暂无数据</td></tr>'; document.getElementById('pagination').innerHTML = ''; return; }
+    if (!list.length) { document.getElementById('tableBody').innerHTML = '<tr><td colspan="8" class="empty-state"><i class="fas fa-inbox"></i> 暂无数据</td></tr>'; document.getElementById('pagination').innerHTML = ''; return; }
 
     let h = '';
+    userMap = {};
     list.forEach(u => {
+        userMap[u.id] = u;
         const statusBadge = u.status === 0 ? '<span class="badge badge-danger">禁用</span>' : '<span class="badge badge-success">正常</span>';
         const roleBadge = u.role === 'ADMIN' ? '<span class="badge badge-warning">管理员</span>' : '<span class="badge badge-info">用户</span>';
         const toggleText = u.status === 0 ? '启用' : '禁用';
@@ -140,6 +161,7 @@ async function loadData(page) {
             <td>${escHtml(u.nickname || '-')}</td>
             <td>${escHtml(u.phone || '-')}</td>
             <td>${roleBadge}</td>
+            <td><a href="javascript:void(0)" onclick="openStampModal(${u.id})" title="查看集章详情">${u.stampCount || 0}</a></td>
             <td>${statusBadge}</td>
             <td class="action-btns">
                 <button class="btn btn-sm btn-primary" onclick="editUser(${u.id},'${escHtml(u.username)}','${escHtml(u.nickname||'')}','${escHtml(u.phone||'')}','${u.role}')">编辑</button>
@@ -226,6 +248,35 @@ async function submitUser() {
 function exportUsers() {
     window.open(API + '/api/admin/user/export', '_blank');
 }
+
+/* ========== 用户集章详情 ========== */
+async function openStampModal(userId) {
+    const u = userMap[userId] || {};
+    document.getElementById('stampModalTitle').textContent = '集章详情 - ' + (u.nickname || u.username || ('#' + userId));
+    document.getElementById('stampSummary').innerHTML = '<i class="fas fa-spinner fa-spin"></i> 加载中...';
+    document.getElementById('stampTableBody').innerHTML = '';
+    document.getElementById('stampModal').classList.add('active');
+    const data = await api('/api/admin/user/stamps?userId=' + userId);
+    if (!data) {
+        document.getElementById('stampSummary').textContent = '加载失败';
+        return;
+    }
+    // 与列表“盖章数”列同一统计口径（spot_stamp 表实时 COUNT）
+    document.getElementById('stampSummary').innerHTML =
+        '盖章总数：<b style="color:#C41A1A">' + (data.total || 0) + '</b> 枚';
+    const list = data.list || [];
+    if (!list.length) {
+        document.getElementById('stampTableBody').innerHTML = '<tr><td colspan="4" class="empty-state">暂无盖章记录</td></tr>';
+        return;
+    }
+    document.getElementById('stampTableBody').innerHTML = list.map(s => `<tr>
+        <td>${escHtml(s.spotName || ('#' + s.spotId))}</td>
+        <td>${escHtml(s.theme || '-')}</td>
+        <td>${escHtml(s.region || '-')}</td>
+        <td>${formatDate(s.visitTime)}</td>
+    </tr>`).join('');
+}
+function closeStampModal() { document.getElementById('stampModal').classList.remove('active'); }
 
 loadData(1);
 </script>

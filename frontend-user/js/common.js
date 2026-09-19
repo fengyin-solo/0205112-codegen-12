@@ -45,7 +45,7 @@ function requireLogin() { if (!getUser()) { location.href = 'login.html'; return
 
 /* ========== i18n ========== */
 const LANG = {
-    zh: { home:'首页',spots:'景点',routes:'线路',culture:'红色文化',hotels:'酒店',foods:'美食',faq:'客服',login:'登录',register:'注册',logout:'退出',profile:'个人中心',favorites:'我的收藏',orders:'我的订单',messages:'消息',search:'搜索',more:'查看更多',price:'价格',free:'免费',day:'天',book:'预订',collect:'收藏',collected:'已收藏',like:'点赞',liked:'已赞',comment:'评论',submit:'提交',cancel:'取消',pay:'支付',refund:'退款',allRegions:'全部地区',allThemes:'全部主题',hotSpots:'热门景点',recommendRoutes:'推荐线路',cultureStories:'红色故事',noData:'暂无数据',loading:'加载中...',
+    zh: { home:'首页',spots:'景点',routes:'线路',culture:'红色文化',hotels:'酒店',foods:'美食',faq:'客服',login:'登录',register:'注册',logout:'退出',profile:'个人中心',favorites:'我的收藏',orders:'我的订单',messages:'消息',stamps:'我的集章',search:'搜索',more:'查看更多',price:'价格',free:'免费',day:'天',book:'预订',collect:'收藏',collected:'已收藏',like:'点赞',liked:'已赞',comment:'评论',submit:'提交',cancel:'取消',pay:'支付',refund:'退款',allRegions:'全部地区',allThemes:'全部主题',hotSpots:'热门景点',recommendRoutes:'推荐线路',cultureStories:'红色故事',noData:'暂无数据',loading:'加载中...',
         spotDetail:'景点详情',routeDetail:'线路详情',cultureDetail:'文化详情',hotelDetail:'酒店详情',foodDetail:'美食详情',
         bookTicket:'预订门票',bookRoute:'预订线路',bookHotel:'预订酒店',buyFood:'购买美食',
         confirmPay:'确认支付',paySuccess:'支付成功',orderAmount:'订单金额',wechatPay:'微信支付',bankPay:'银行卡支付',payLater:'稍后支付',
@@ -65,7 +65,7 @@ const LANG = {
         loginFirst:'请先登录',loginSuccess:'登录成功',registerSuccess:'注册成功',
         footer:'© 2026 贵州红色文化旅游景点信息管理系统'
     },
-    en: { home:'Home',spots:'Spots',routes:'Routes',culture:'Red Culture',hotels:'Hotels',foods:'Food',faq:'Support',login:'Login',register:'Register',logout:'Logout',profile:'Profile',favorites:'Favorites',orders:'Orders',messages:'Messages',search:'Search',more:'More',price:'Price',free:'Free',day:'Day(s)',book:'Book',collect:'Collect',collected:'Collected',like:'Like',liked:'Liked',comment:'Comment',submit:'Submit',cancel:'Cancel',pay:'Pay',refund:'Refund',allRegions:'All Regions',allThemes:'All Themes',hotSpots:'Hot Spots',recommendRoutes:'Recommended Routes',cultureStories:'Red Stories',noData:'No Data',loading:'Loading...',
+    en: { home:'Home',spots:'Spots',routes:'Routes',culture:'Red Culture',hotels:'Hotels',foods:'Food',faq:'Support',login:'Login',register:'Register',logout:'Logout',profile:'Profile',favorites:'Favorites',orders:'Orders',messages:'Messages',stamps:'My Stamps',search:'Search',more:'More',price:'Price',free:'Free',day:'Day(s)',book:'Book',collect:'Collect',collected:'Collected',like:'Like',liked:'Liked',comment:'Comment',submit:'Submit',cancel:'Cancel',pay:'Pay',refund:'Refund',allRegions:'All Regions',allThemes:'All Themes',hotSpots:'Hot Spots',recommendRoutes:'Recommended Routes',cultureStories:'Red Stories',noData:'No Data',loading:'Loading...',
         spotDetail:'Spot Detail',routeDetail:'Route Detail',cultureDetail:'Culture Detail',hotelDetail:'Hotel Detail',foodDetail:'Food Detail',
         bookTicket:'Book Ticket',bookRoute:'Book Route',bookHotel:'Book Hotel',buyFood:'Buy Food',
         confirmPay:'Confirm Payment',paySuccess:'Payment Successful',orderAmount:'Order Amount',wechatPay:'WeChat Pay',bankPay:'Bank Card',payLater:'Pay Later',
@@ -85,7 +85,7 @@ const LANG = {
         loginFirst:'Please login first',loginSuccess:'Login successful',registerSuccess:'Registration successful',
         footer:'© 2026 Guizhou Red Culture Tourism System'
     },
-    ja: { home:'ホーム',spots:'観光地',routes:'ルート',culture:'赤い文化',hotels:'ホテル',foods:'グルメ',faq:'サポート',login:'ログイン',register:'登録',logout:'ログアウト',profile:'プロフィール',favorites:'お気に入り',orders:'注文',messages:'メッセージ',search:'検索',more:'もっと見る',price:'価格',free:'無料',day:'日',book:'予約',collect:'保存',collected:'保存済',like:'いいね',liked:'いいね済',comment:'コメント',submit:'送信',cancel:'キャンセル',pay:'支払',refund:'返金',allRegions:'全地域',allThemes:'全テーマ',hotSpots:'人気観光地',recommendRoutes:'おすすめルート',cultureStories:'赤い物語',noData:'データなし',loading:'読み込み中...',
+    ja: { home:'ホーム',spots:'観光地',routes:'ルート',culture:'赤い文化',hotels:'ホテル',foods:'グルメ',faq:'サポート',login:'ログイン',register:'登録',logout:'ログアウト',profile:'プロフィール',favorites:'お気に入り',orders:'注文',messages:'メッセージ',stamps:'マイスタンプ',search:'検索',more:'もっと見る',price:'価格',free:'無料',day:'日',book:'予約',collect:'保存',collected:'保存済',like:'いいね',liked:'いいね済',comment:'コメント',submit:'送信',cancel:'キャンセル',pay:'支払',refund:'返金',allRegions:'全地域',allThemes:'全テーマ',hotSpots:'人気観光地',recommendRoutes:'おすすめルート',cultureStories:'赤い物語',noData:'データなし',loading:'読み込み中...',
         spotDetail:'観光地詳細',routeDetail:'ルート詳細',cultureDetail:'文化詳細',hotelDetail:'ホテル詳細',foodDetail:'グルメ詳細',
         bookTicket:'チケット予約',bookRoute:'ルート予約',bookHotel:'ホテル予約',buyFood:'グルメ購入',
         confirmPay:'支払い確認',paySuccess:'支払い完了',orderAmount:'注文金額',wechatPay:'WeChat Pay',bankPay:'銀行カード',payLater:'後で支払う',
@@ -184,7 +184,7 @@ function renderHeader() {
         if (user.avatar) {
             avatarHtml = '<img src="' + API + user.avatar + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%" onerror="this.parentElement.textContent=\'' + initial + '\'">';
         }
-        um.innerHTML = '<div class="user-dropdown"><div class="user-avatar-small" onclick="this.parentElement.querySelector(\'.dropdown-menu\').classList.toggle(\'show\')">' + avatarHtml + '</div><div class="dropdown-menu"><a href="profile.html"><i class="fas fa-user"></i> ' + t('profile') + '</a><a href="favorites.html"><i class="fas fa-heart"></i> ' + t('favorites') + '</a><a href="orders.html"><i class="fas fa-shopping-bag"></i> ' + t('orders') + '</a><a href="messages.html"><i class="fas fa-bell"></i> ' + t('messages') + '</a><a href="#" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> ' + t('logout') + '</a></div></div>';
+        um.innerHTML = '<div class="user-dropdown"><div class="user-avatar-small" onclick="this.parentElement.querySelector(\'.dropdown-menu\').classList.toggle(\'show\')">' + avatarHtml + '</div><div class="dropdown-menu"><a href="profile.html"><i class="fas fa-user"></i> ' + t('profile') + '</a><a href="stamps.html"><i class="fas fa-stamp"></i> ' + t('stamps') + '</a><a href="favorites.html"><i class="fas fa-heart"></i> ' + t('favorites') + '</a><a href="orders.html"><i class="fas fa-shopping-bag"></i> ' + t('orders') + '</a><a href="messages.html"><i class="fas fa-bell"></i> ' + t('messages') + '</a><a href="#" onclick="doLogout()"><i class="fas fa-sign-out-alt"></i> ' + t('logout') + '</a></div></div>';
     } else {
         um.innerHTML = '<a href="login.html" class="btn btn-primary btn-sm">' + t('login') + '</a>';
     }

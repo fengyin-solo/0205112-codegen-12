@@ -120,6 +120,9 @@
             <div class="detail-sidebar">
                 <div class="sidebar-card">
                     <h3>操作</h3>
+                    <button id="stampBtn" class="btn btn-outline" style="width:100%;margin-bottom:10px" onclick="doCheckin()">
+                        <i class="fas fa-stamp"></i> 打卡盖章
+                    </button>
                     <button id="favBtn" class="btn btn-outline" style="width:100%;margin-bottom:10px" onclick="toggleFavorite()">
                         <i class="far fa-heart"></i> 收藏
                     </button>
@@ -427,6 +430,44 @@ async function checkFavorite() {
     }
 }
 
+/* ========== 打卡盖章 ========== */
+let stampInfo = null;
+
+async function checkStamp() {
+    if (!getUser()) return;
+    const res = await api(`/api/stamp/check?spotId=${spotId}`);
+    if (res && res.stamped) {
+        stampInfo = res;
+        updateStampBtn();
+    }
+}
+
+function updateStampBtn() {
+    const btn = document.getElementById('stampBtn');
+    if (stampInfo && stampInfo.stamped) {
+        btn.innerHTML = '<i class="fas fa-stamp"></i> 已盖章 ' + formatDate(stampInfo.visitTime).substring(0, 10);
+        btn.classList.remove('btn-outline');
+        btn.classList.add('btn-primary');
+    } else {
+        btn.innerHTML = '<i class="fas fa-stamp"></i> 打卡盖章';
+        btn.classList.remove('btn-primary');
+        btn.classList.add('btn-outline');
+    }
+}
+
+async function doCheckin() {
+    if (!requireLogin()) return;
+    const res = await api('/api/stamp/checkin?spotId=' + spotId);
+    if (res === null) return;
+    stampInfo = { stamped: true, visitTime: res.visitTime };
+    updateStampBtn();
+    if (res.isNew) {
+        showToast('打卡成功，已盖章！前往「我的集章」查看进度');
+    } else {
+        showToast('该景点已盖章，首次到访：' + formatDate(res.visitTime), 'warning');
+    }
+}
+
 function updateFavBtn() {
     const btn = document.getElementById('favBtn');
     if (isFavorited) {
@@ -561,6 +602,7 @@ selectStar(5);
 loadDetail();
 loadGallery();
 checkFavorite();
+checkStamp();
 loadRelated();
 loadComments(1);
 </script>

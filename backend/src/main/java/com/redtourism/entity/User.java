@@ -23,4 +23,8 @@ public class User implements Serializable {
     private Date createTime;
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date updateTime;
+
+    /** 盖章总数（非表字段，由 spot_stamp 实时统计，后台用户列表与用户详情共用） */
+    @TableField(exist = false)
+    private Long stampCount;
 }
